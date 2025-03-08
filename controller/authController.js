@@ -136,8 +136,6 @@ export const verifySignUpUser = async (req, res, next) =>{
 
         const dbotp = await OTP.findOne({mobileno})
 
-        console.log(dbotp)
-
         if(!dbotp) return res.status(400).json({message:"OTP has expired. Please request a new one.",data:false,status:400})
 
         if(dbotp.otp!==otp) return res.status(400).json({message:"Invalid OTP. Please try again.",data:false,status:400})
