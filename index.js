@@ -9,6 +9,9 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import authRoute from './routes/auth.js'
+import userRoute from './routes/user.js'
+
 
 // Get the current file's path
 const __filename = fileURLToPath(import.meta.url);
@@ -16,11 +19,12 @@ const __filename = fileURLToPath(import.meta.url);
 // Get the current directory's path
 const __dirname = path.dirname(__filename);
 
+dotenv.config();
 
 // App configuration
 const port = process.env.PORT || 8080;
 
-dotenv.config();
+
 
 const app = express();
 
@@ -95,7 +99,8 @@ mongoose.connection.on("disconnected", () => {
 });
 
 // Middleware
-
+app.use('/api/auth',authRoute)
+app.use('/api/user',userRoute)
 
 
 // Middleware to catch errors
