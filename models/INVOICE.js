@@ -23,7 +23,7 @@ export const invoiceSchema = new mongoose.Schema({
     type: String,
     required:true
   },
-  pending_status: {
+  payment_status: {
     type:Boolean,
     default:false
   },

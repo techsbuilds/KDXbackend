@@ -1,11 +1,12 @@
 import express from 'express'
-import { createInvoice } from '../controller/invoiceController'
+import { createInvoice } from '../controller/invoiceController.js'
+import { verifyToken } from '../middleware/authMiddleware.js'
 
 const app = express.Router()
 
 
 //For create new invoice
-app.post('/',createInvoice)
+app.post('/',verifyToken,createInvoice)
 
 
 

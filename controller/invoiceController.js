@@ -1,4 +1,3 @@
-import mongoose from "mongoose"; 
 import CUSTOMER from "../models/CUSTOMER.js";
 import INVOICE from "../models/INVOICE.js";
 
@@ -10,6 +9,10 @@ export const createInvoice = async (req, res, next)=>{
 
         const {invoice_id,billing_description,total_amount,customer_name,customer_mobile_no,customer_vehicle_number,customer_vehicle_name,customer_vehicle_km} = req.body
         if(!invoice_id || !billing_description || !total_amount || !customer_name || !customer_mobile_no || !customer_vehicle_number || !customer_vehicle_name || !customer_vehicle_km) return res.status(400).json({message:"Please provode all required fields.",status:400})
+
+        if(Number(total_amount)<=0){
+            return res.status(400).json({ message: "Total amount must be a valid positive number.", status: 400 });
+        }
  
         const invoice = await INVOICE.findOne({invoice_id})
 
@@ -39,6 +42,8 @@ export const createInvoice = async (req, res, next)=>{
         })
 
         await newInvoice.save()
+
+        await newInvoice.populate('customer');
 
         return res.status(200).json({message:"New invoice created successfully.",data:newInvoice,status:200})
 

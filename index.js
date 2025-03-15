@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 
 import authRoute from './routes/auth.js'
 import userRoute from './routes/user.js'
-
+import invoiceRoute from './routes/invoice.js'
 
 // Get the current file's path
 const __filename = fileURLToPath(import.meta.url);
@@ -101,6 +101,7 @@ mongoose.connection.on("disconnected", () => {
 // Middleware
 app.use('/api/auth',authRoute)
 app.use('/api/user',userRoute)
+app.use('/api/invoice',invoiceRoute)
 
 
 // Middleware to catch errors

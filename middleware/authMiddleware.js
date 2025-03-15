@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export const verifyToken = async ()=>{
+export const verifyToken = async (req, res, next)=>{
     const token = req.header("Authorization");
 
     if (!token) {
