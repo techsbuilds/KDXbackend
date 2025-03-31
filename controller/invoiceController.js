@@ -53,61 +53,76 @@ export const createInvoice = async (req, res, next)=>{
     }
 }
 
-export const getInovice = async (req, res, next) =>{
-        try {
-            const { mongoid } = req;
-            if (!mongoid) {
-              return res.status(400).json({ message: "Unauthorized request: Missing user ID.", status: 400 });
-            }
-        
-            const { contactno, vehicleno } = req.query;
-        
-            let matchQuery = {};
-        
-            if (contactno) {
-              matchQuery["customer.customer_mobile_no"] = contactno;
-            }
-            if (vehicleno) {
-              matchQuery["customer.customer_vehicle_number"] = vehicleno;
-            }
-        
-            // If both contactno and vehicleno are missing, return invoices added by the user
-             matchQuery["added_by"] = new mongoose.Types.ObjectId(mongoid);
-            
-        
-            const invoices = await INVOICE.aggregate([
-              {
-                $lookup: {
-                  from: "customers", // MongoDB collection name
-                  localField: "customer",
-                  foreignField: "_id",
-                  as: "customer"
-                }
-              },
-              { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } }, // Allow invoices without customers
-              { $match: matchQuery }, // Apply filter condition
-              {
-                $project: {
-                  invoice_id: 1,
-                  total_amount: 1,
-                  pending_amount: 1,
-                  payment_status: 1,
-                  billing_description: 1,
-                  added_by: 1,
-                  "customer.customer_name": 1,
-                  "customer.customer_mobile_no": 1,
-                  "customer.customer_vehicle_number": 1,
-                  "customer.customer_vehicle_name": 1,
-                  "customer.customer_vehicle_km": 1,
-                  createdAt: 1
-                }
-              }
-            ]);
-        
-            res.status(200).json({ status: 200, message: "Invoices fetched successfully.", data: invoices });
-        
-          } catch (err) {
-            next(err);
-          }
 
-}
+export const getInvoice = async (req, res, next) => {
+  try {
+    const { mongoid } = req; // Authenticated user ID
+    if (!mongoid) {
+      return res.status(400).json({ message: "Unauthorized request: Missing user ID.", status: 400 });
+    }
+
+    const { contactno, vehicleno } = req.query;
+
+    const pipeline = [
+      {
+        $lookup: {
+          from: "customers",
+          localField: "customer",
+          foreignField: "_id",
+          as: "customer"
+        }
+      },
+      { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } }, // Include invoices without a customer
+
+      // Apply filtering AFTER lookup
+      {
+        $match: {
+          "added_by": new mongoose.Types.ObjectId(mongoid), // Restrict user access
+        }
+      }
+    ];
+
+    // Apply additional filters only if provided
+    if (contactno) {
+      pipeline.push({
+        $match: { "customer.customer_mobile_no": contactno }
+      });
+    }
+
+    if (vehicleno) {
+      pipeline.push({
+        $match: {
+          "customer.customer_vehicle_number": {
+            $regex: vehicleno.replace(/\s+/g, "\\s*"), // Allow flexible space matching
+            $options: "i" // Case-insensitive
+          }
+        }
+      });
+    }
+
+    // Project the final result
+    pipeline.push({
+      $project: {
+        invoice_id: 1,
+        total_amount: 1,
+        pending_amount: 1,
+        payment_status: 1,
+        billing_description: 1,
+        added_by: 1,
+        "customer.customer_name": 1,
+        "customer.customer_mobile_no": 1,
+        "customer.customer_vehicle_number": 1,
+        "customer.customer_vehicle_name": 1,
+        "customer.customer_vehicle_km": 1,
+        createdAt: 1
+      }
+    });
+
+    const invoices = await INVOICE.aggregate(pipeline);
+
+    res.status(200).json({ status: 200, message: "Invoices fetched successfully.", data: invoices });
+
+  } catch (err) {
+    next(err);
+  }
+};
