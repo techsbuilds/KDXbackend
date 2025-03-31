@@ -67,20 +67,43 @@ export const createUser = async (req,res,next) =>{
 export const updateUser = async (req, res, next) =>{
     try{
        if(!req.mongoid){
+            removeProfilePic(req?.file?.path)
             return res.status(400).json({ message: "Unauthorized request: Missing user ID.", status: 400 });
        }
 
        const user = await USER.findById(req.mongoid)
 
-       if(!user) return res.status(404).json({message:"User not found.",status:404})
+       if(!user){
+        removeProfilePic(req?.file?.path)
+        return res.status(404).json({message:"User not found.",status:404})
+       }
 
        let updatedData = {...req.body}
 
+       if(updatedData.mobileno!==user.mobileno){
+         const existUser = await USER.findOne({mobileno:updatedData.mobileno})
+
+         if(existUser){
+            removeProfilePic(req?.file?.path)
+            return res.status(409).json({message:"User is already exist with same mobileno.",status:409})
+         }
+       }
+
+       if(updatedData.email !== user.email){
+        const existUser = await USER.findOne({mobileno:updatedData.email})
+
+        if(existUser){
+            removeProfilePic(req?.file?.path)
+            return res.status(409).json({message:"User is already exist with same email address",status:409})
+        }
+       }
+
        if(req.file){
-        if(user.profile_picture){
+        if(user.profile_picture.filePath){
             if(fs.existsSync(user.profile_picture.filePath)){
                 fs.unlinkSync(user.profile_picture.filePath)
             }else{
+                removeProfilePic(req?.file?.path)
                 return res.status(404).json({message:"File not found.",status:404})
             }
          }
