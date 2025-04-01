@@ -12,6 +12,7 @@ import { fileURLToPath } from "url";
 import authRoute from './routes/auth.js'
 import userRoute from './routes/user.js'
 import invoiceRoute from './routes/invoice.js'
+import transactionRoute from './routes/transaction.js'
 
 // Get the current file's path
 const __filename = fileURLToPath(import.meta.url);
@@ -29,10 +30,7 @@ const port = process.env.PORT || 8080;
 const app = express();
 
 // Serve static files from the uploads directory
-// app.use(
-//   "/uploads/partner/logo",
-//   express.static(path.join(__dirname, "uploads/partner/logo"))
-// );
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 const corsOptions = {
@@ -102,6 +100,7 @@ mongoose.connection.on("disconnected", () => {
 app.use('/api/auth',authRoute)
 app.use('/api/user',userRoute)
 app.use('/api/invoice',invoiceRoute)
+app.use('/api/transaction',transactionRoute)
 
 
 // Middleware to catch errors

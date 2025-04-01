@@ -24,8 +24,8 @@ export const invoiceSchema = new mongoose.Schema({
     required:true
   },
   payment_status: {
-    type:Boolean,
-    default:false
+    type: String,
+    default:"Pending"
   },
   added_by: {
     type: mongoose.Schema.Types.ObjectId,
