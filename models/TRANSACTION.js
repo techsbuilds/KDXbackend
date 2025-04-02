@@ -7,11 +7,11 @@ const transactionSchema = new mongoose.Schema({
         required:true
     },
     paid_amount:{
-        type:String,
+        type:Number,
         required:true
     },
     discount_amount:{
-        type:String,
+        type:Number,
         required:true
     },
     added_by:{

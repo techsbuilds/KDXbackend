@@ -11,7 +11,7 @@ export const createInvoice = async (req, res, next)=>{
         const {invoice_id,billing_description,total_amount,customer_name,customer_mobile_no,customer_vehicle_number,customer_vehicle_name,customer_vehicle_km} = req.body
         if(!invoice_id || !billing_description || !total_amount || !customer_name || !customer_mobile_no || !customer_vehicle_number || !customer_vehicle_name || !customer_vehicle_km) return res.status(400).json({message:"Please provode all required fields.",status:400})
 
-        if(Number(total_amount)<=0){
+        if(total_amount<=0){
             return res.status(400).json({ message: "Total amount must be a valid positive number.", status: 400 });
         }
  
@@ -19,7 +19,9 @@ export const createInvoice = async (req, res, next)=>{
 
         if(invoice) return res.status(409).json({ message: "Invoice is already exist with invoice id.", status: 409})
 
-        let existCustomer = await CUSTOMER.findOne({customer_mobile_no,customer_vehicle_number})
+        let existCustomer = await CUSTOMER.findOne({$or:[{customer_mobile_no},{customer_vehicle_number}]})
+
+        console.log(existCustomer)
 
         if(!existCustomer){
            existCustomer = new CUSTOMER({

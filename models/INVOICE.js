@@ -7,20 +7,20 @@ export const invoiceSchema = new mongoose.Schema({
   },
   billing_description: [{
     name: { type: String, required: true },
-    qty: { type: String, required: true },
-    rate: { type: String, required: true },
-    amount: { type: String, required: true }
+    qty: { type: Number, required: true },
+    rate: { type: Number, required: true },
+    amount: { type: Number, required: true }
   }],
   customer:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Customer'
   },
   total_amount: {
-    type: String,
+    type: Number,
     required: true
   },
   pending_amount: {
-    type: String,
+    type: Number,
     required:true
   },
   payment_status: {

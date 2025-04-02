@@ -21,17 +21,13 @@ export const createTransaction = async (req, res, next)=>{
 
         const existInvoice = await INVOICE.findById(invoice)
 
-        console.log(existInvoice)
-
         let total_amount = paid_amount + discount_amount
-
-        console.log(total_amount)
 
         if(total_amount > existInvoice.total_amount || total_amount > existInvoice.pending_amount){
             return res.status(400).json({message:"Total of paid and discount is greter then pending amount.",status:400})
         }
 
-        await INVOICE.findByIdAndUpdate(invoice,{$set:{payment_status:"Outstanding",pending_amount:Number(existInvoice.pending_amount)-total_amount}})
+        await INVOICE.findByIdAndUpdate(invoice,{$set:{payment_status:"Outstanding",pending_amount:existInvoice.pending_amount-total_amount}})
 
         if(!existInvoice) return res.status(404).json({message:"Invoice is already exist.",status:404})
 
