@@ -55,7 +55,6 @@ export const createInvoice = async (req, res, next)=>{
     }
 }
 
-
 export const getInvoice = async (req, res, next) => {
   try {
     const { mongoid } = req; // Authenticated user ID
@@ -63,7 +62,7 @@ export const getInvoice = async (req, res, next) => {
       return res.status(400).json({ message: "Unauthorized request: Missing user ID.", status: 400 });
     }
 
-    const { contactno, vehicleno } = req.query;
+    const { contactno, vehicleno, from, to } = req.query;
 
     const pipeline = [
       {
@@ -74,35 +73,53 @@ export const getInvoice = async (req, res, next) => {
           as: "customer"
         }
       },
-      { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } }, // Include invoices without a customer
+      { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } },
 
-      // Apply filtering AFTER lookup
       {
         $match: {
-          "added_by": new mongoose.Types.ObjectId(mongoid), // Restrict user access
+          added_by: new mongoose.Types.ObjectId(mongoid)
         }
       }
     ];
 
-    // Apply additional filters only if provided
+    // Optional filter: Contact number
     if (contactno) {
       pipeline.push({
         $match: { "customer.customer_mobile_no": contactno }
       });
     }
 
+    // Optional filter: Vehicle number (case-insensitive, flexible spacing)
     if (vehicleno) {
       pipeline.push({
         $match: {
           "customer.customer_vehicle_number": {
-            $regex: vehicleno.replace(/\s+/g, "\\s*"), // Allow flexible space matching
-            $options: "i" // Case-insensitive
+            $regex: vehicleno.replace(/\s+/g, "\\s*"),
+            $options: "i"
           }
         }
       });
     }
 
-    // Project the final result
+    // Optional filter: Date range
+    if (from || to) {
+      const dateFilter = {};
+      if (from) {
+        dateFilter.$gte = new Date(from);
+      }
+      if (to) {
+        // Add 1 day to make the `to` inclusive (end of day)
+        const endDate = new Date(to);
+        endDate.setHours(23, 59, 59, 999);
+        dateFilter.$lte = endDate;
+      }
+
+      pipeline.push({
+        $match: { createdAt: dateFilter }
+      });
+    }
+
+    // Final projection
     pipeline.push({
       $project: {
         invoice_id: 1,
