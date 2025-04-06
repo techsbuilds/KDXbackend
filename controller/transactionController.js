@@ -134,7 +134,6 @@ export const getTransaction = async (req, res, next) =>{
           });
         }
 
-        console.log(pipeline)
     
         // Optional: Project final result (select only needed fields)
         pipeline.push({

@@ -145,3 +145,31 @@ export const getInvoice = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const getOneInvoice = async (req, res, next) =>{
+  try{
+  
+    const { mongoid } = req; // Authenticated user ID
+
+    if (!mongoid) {
+      return res.status(400).json({ message: "Unauthorized request: Missing user ID.", status: 400 });
+    }
+
+    const {invoiceId} = req.params
+
+    console.log(invoiceId)
+    console.log(mongoid)
+
+    if(!invoiceId) return res.status(400).json({message:"Please provide invoice id.",status:400})
+
+    const invoice = await INVOICE.findOne({_id:invoiceId,added_by:mongoid}).
+    populate('customer').
+    populate('added_by')
+
+    return res.status(200).json({message:"Invoice retrived successfully",data:invoice,status:200})
+
+  }catch(err){
+    next(err)
+  }
+}
