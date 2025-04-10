@@ -16,7 +16,7 @@ export const createTransaction = async (req, res, next)=>{
 
         const {invoice,paid_amount,discount_amount} = req.body
 
-        if(!invoice || !paid_amount || !discount_amount){
+        if(!invoice || paid_amount===null || discount_amount===null){
             return res.status(400).json({message:"Please give all required fields.",status:400})
         }
 
