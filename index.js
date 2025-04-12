@@ -13,6 +13,7 @@ import authRoute from './routes/auth.js'
 import userRoute from './routes/user.js'
 import invoiceRoute from './routes/invoice.js'
 import transactionRoute from './routes/transaction.js'
+import messageRoute from './routes/message.js'
 
 // Get the current file's path
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +24,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // App configuration
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8040;
 
 
 
@@ -101,6 +102,7 @@ app.use('/api/auth',authRoute)
 app.use('/api/user',userRoute)
 app.use('/api/invoice',invoiceRoute)
 app.use('/api/transaction',transactionRoute)
+app.use('/api/message',messageRoute)
 
 
 // Middleware to catch errors
