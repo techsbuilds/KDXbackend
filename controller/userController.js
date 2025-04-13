@@ -90,7 +90,7 @@ export const updateUser = async (req, res, next) =>{
        }
 
        if(updatedData.email !== user.email){
-        const existUser = await USER.findOne({mobileno:updatedData.email})
+        const existUser = await USER.findOne({email:updatedData.email})
 
         if(existUser){
             removeProfilePic(req?.file?.path)
