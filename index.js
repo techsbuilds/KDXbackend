@@ -58,7 +58,6 @@ app.options("*", cors(corsOptions)); // Allow OPTIONS for all routes
 
 // Middleware for using CORS
 app.use(cors(corsOptions));
-app.use(helmet()); // Protects headers
 
 // Middleware to parse JSON
 app.use(express.json({limit:"50mb"}));
