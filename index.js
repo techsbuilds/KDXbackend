@@ -3,9 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import helmet from 'helmet'
-import compression from 'compression'
-import rateLimit from "express-rate-limit";
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -61,7 +59,6 @@ app.options("*", cors(corsOptions)); // Allow OPTIONS for all routes
 // Middleware for using CORS
 app.use(cors(corsOptions));
 app.use(helmet()); // Protects headers
-app.use(compression()); // Compresses response payloads
 
 // Middleware to parse JSON
 app.use(express.json({limit:"50mb"}));
@@ -70,14 +67,6 @@ app.use(express.json({limit:"50mb"}));
 app.use(cookieParser());
 app.use(express.urlencoded({limit:"50mb", extended: true }));
 
-// Global rate limiter (limits requests per IP)
-const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // Limit each IP to 100 requests per windowMs
-    message: "Too many requests from this IP, please try again later.",
-    headers: true, // Send rate limit headers
-  });
-  app.use(globalLimiter);
 
 const connectDb = async () => {
   try {
