@@ -42,6 +42,7 @@ const corsOptions = {
     const allowedOrigins = [
       "http://localhost:3000",
       "http://localhost:3001",
+      "https://api.fuelflex.in"
     ];
     // Allow requests with no origin (like mobile apps or CURL)
     if (!origin || allowedOrigins.includes(origin)) {
