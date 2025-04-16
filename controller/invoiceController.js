@@ -85,7 +85,12 @@ export const getInvoice = async (req, res, next) => {
     // Optional filter: Contact number
     if (contactno) {
       pipeline.push({
-        $match: { "customer.customer_mobile_no": contactno }
+        $match: {
+          "customer.customer_mobile_no": {
+            $regex: contactno,
+            $options: "i" // Optional, useful if numbers have characters like +91
+          }
+        }
       });
     }
 
@@ -157,9 +162,6 @@ export const getOneInvoice = async (req, res, next) =>{
     }
 
     const {invoiceId} = req.params
-
-    console.log(invoiceId)
-    console.log(mongoid)
 
     if(!invoiceId) return res.status(400).json({message:"Please provide invoice id.",status:400})
 
