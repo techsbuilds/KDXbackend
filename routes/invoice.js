@@ -11,9 +11,9 @@ app.post('/',verifyToken,createInvoice)
 //For get invoice
 app.get('/',verifyToken,getInvoice)
 
-
 //For get one invoice 
 app.get('/getone/:invoiceId',verifyToken,getOneInvoice)
+
 
 
 export default app

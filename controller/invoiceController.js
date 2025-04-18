@@ -55,8 +55,8 @@ export const createInvoice = async (req, res, next)=>{
     }
 }
 
-export const getInvoice = async (req, res, next) => {
-  try {
+export const getInvoice = async (req, res, next) =>{
+  try{
     const { mongoid } = req; // Authenticated user ID
     if (!mongoid) {
       return res.status(400).json({ message: "Unauthorized request: Missing user ID.", status: 400 });
@@ -74,39 +74,42 @@ export const getInvoice = async (req, res, next) => {
         }
       },
       { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } },
-
       {
         $match: {
           added_by: new mongoose.Types.ObjectId(mongoid)
         }
-      }
-    ];
+      },
+      { $sort: { createdAt: -1 } }
+    ]
 
-    // Optional filter: Contact number
+    function escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex special chars
+    }
+
     if (contactno) {
+      const safeContact = escapeRegex(contactno);
       pipeline.push({
         $match: {
           "customer.customer_mobile_no": {
-            $regex: contactno,
+            $regex: safeContact,
             $options: "i" // Optional, useful if numbers have characters like +91
           }
         }
       });
     }
 
-    // Optional filter: Vehicle number (case-insensitive, flexible spacing)
     if (vehicleno) {
+      const safeRegex = escapeRegex(vehicleno).replace(/\s+/g, "\\s*"); // Add flexible spacing
       pipeline.push({
         $match: {
           "customer.customer_vehicle_number": {
-            $regex: vehicleno.replace(/\s+/g, "\\s*"),
+            $regex: safeRegex,
             $options: "i"
           }
         }
       });
     }
 
-    // Optional filter: Date range
     if (from || to) {
       const dateFilter = {};
       if (from) {
@@ -124,7 +127,7 @@ export const getInvoice = async (req, res, next) => {
       });
     }
 
-    // Final projection
+
     pipeline.push({
       $project: {
         invoice_id: 1,
@@ -140,20 +143,16 @@ export const getInvoice = async (req, res, next) => {
         "customer.customer_vehicle_km": 1,
         createdAt: 1
       }
-    });
+    },)
 
-    const invoices = await INVOICE.aggregate([
-      ...pipeline,
-      { $sort: { createdAt: -1 } }
-    ]);
+    const invoices = await INVOICE.aggregate(pipeline);
 
-    res.status(200).json({ status: 200, message: "Invoices fetched successfully.", data: invoices });
+    return res.status(200).json({message:"invoice geted",data:invoices})
 
-  } catch (err) {
-    next(err);
+  }catch(err){
+    next(err)
   }
-};
-
+}
 
 export const getOneInvoice = async (req, res, next) =>{
   try{
