@@ -142,7 +142,10 @@ export const getInvoice = async (req, res, next) => {
       }
     });
 
-    const invoices = await INVOICE.aggregate(pipeline);
+    const invoices = await INVOICE.aggregate([
+      ...pipeline,
+      { $sort: { createdAt: -1 } }
+    ]);
 
     res.status(200).json({ status: 200, message: "Invoices fetched successfully.", data: invoices });
 

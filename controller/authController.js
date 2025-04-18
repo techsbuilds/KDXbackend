@@ -42,7 +42,7 @@ export const sendOtp = async (req, res, next) =>{
 
         let response = {
             otp,
-            // sid:message.sid
+            sid:message.sid
         }
 
         return res.status(200).json({message:"Otp sended successfully",data:response,status:200})
