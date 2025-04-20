@@ -27,11 +27,11 @@ export const sendOtp = async (req, res, next) =>{
 
         const otp = generateOTP()
 
-        const message = await client.messages.create({
-            body: `Your verification code is: ${otp}`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: mobileno
-        });
+        // const message = await client.messages.create({
+        //     body: `Your verification code is: ${otp}`,
+        //     from: process.env.TWILIO_PHONE_NUMBER,
+        //     to: mobileno
+        // });
 
         let newOtp = new OTP({
             mobileno,
@@ -42,7 +42,7 @@ export const sendOtp = async (req, res, next) =>{
 
         let response = {
             otp,
-            sid:message.sid
+            // sid:message.sid
         }
 
         return res.status(200).json({message:"Otp sended successfully",data:response,status:200})
@@ -102,11 +102,11 @@ export const sendOtpForSignUp = async (req, res, next) =>{
 
        const otp = generateOTP()
 
-       const message = await client.messages.create({
-           body: `Your verification code is: ${otp}`,
-           from: process.env.TWILIO_PHONE_NUMBER,
-           to: mobileno
-       });
+    //    const message = await client.messages.create({
+    //        body: `Your verification code is: ${otp}`,
+    //        from: process.env.TWILIO_PHONE_NUMBER,
+    //        to: mobileno
+    //    });
 
        let newOtp = new OTP({
            mobileno,
