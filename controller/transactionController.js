@@ -68,8 +68,6 @@ export const getTransaction = async (req, res, next) =>{
     
         const { vehicleno, mobileno, from, to } = req.query;
 
-        console.log(from)
-        console.log(to)
     
         const pipeline = [
           {
@@ -92,7 +90,8 @@ export const getTransaction = async (req, res, next) =>{
               as: "customer"
             }
           },
-          { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } }
+          { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } },
+          { $sort: { createdAt: -1 } }
         ];
     
         // Filter: Vehicle Number
