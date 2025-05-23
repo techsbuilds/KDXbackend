@@ -1,15 +1,12 @@
 import USER from "../models/USER.js";
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-import twilio from 'twilio'
 import OTP from "../models/OTP.js";
+import qs from 'qs'
+import axios from "axios";
 
 dotenv.config()
 
-const accountSiD=process.env.ACCOUNT_SID
-const authToken=process.env.AUTH_TOKEN
-
-const client = new twilio(accountSiD, authToken);
 
 //For generate otp
 const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
@@ -27,11 +24,23 @@ export const sendOtp = async (req, res, next) =>{
 
         const otp = generateOTP()
 
-        const message = await client.messages.create({
-            body: `Your verification code is: ${otp}`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: mobileno
-        });
+        const data = qs.stringify({
+            variables_values: otp,
+            route: 'otp',
+            numbers: mobileno.slice(3)
+          });
+        
+        const config = {
+            method: 'post',
+            url: 'https://www.fast2sms.com/dev/bulkV2',
+            headers: {
+              'authorization': process.env.FAST_SMS_API,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data
+        };
+
+        await axios(config)
 
         let newOtp = new OTP({
             mobileno,
@@ -42,7 +51,6 @@ export const sendOtp = async (req, res, next) =>{
 
         let response = {
             otp,
-            // sid:message.sid
         }
 
         return res.status(200).json({message:"Otp sended successfully",data:response,status:200})
@@ -102,11 +110,23 @@ export const sendOtpForSignUp = async (req, res, next) =>{
 
        const otp = generateOTP()
 
-       const message = await client.messages.create({
-           body: `Your verification code is: ${otp}`,
-           from: process.env.TWILIO_PHONE_NUMBER,
-           to: mobileno
-       });
+        const data = qs.stringify({
+              variables_values: otp,
+              route: 'otp',
+              numbers: mobileno.slice(3)
+        });
+    
+        const config = {
+          method: 'post',
+          url: 'https://www.fast2sms.com/dev/bulkV2',
+          headers: {
+            'authorization': process.env.FAST_SMS_API,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          data: data
+        };
+
+       await axios(config)
 
        let newOtp = new OTP({
            mobileno,
