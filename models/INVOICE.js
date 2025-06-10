@@ -7,8 +7,8 @@ export const invoiceSchema = new mongoose.Schema({
   },
   billing_description: [{
     name: { type: String, required: true },
-    qty: { type: Number, required: true },
-    rate: { type: Number, required: true },
+    qty: { type: Number},
+    rate: { type: Number},
     amount: { type: Number, required: true }
   }],
   customer:{
